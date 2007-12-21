@@ -1,0 +1,8 @@
+======================
+z3c.schema2xml changes
+======================
+
+0.10 (unreleased)
+=================
+
+* First checkin in svn.zope.org.

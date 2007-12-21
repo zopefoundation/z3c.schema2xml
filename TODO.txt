@@ -1,0 +1,22 @@
+Todo
+====
+
+* test adapter lookup failure
+
+* test whether GeneratedObject implements right schema interface.
+
+* test without explicit __name__ for Lists. What should happen? Fallback
+  on interface name?
+
+* test deserialization on an empty object.
+
+* what to do in case of a missing element in an XML document?
+
+* form data file instances need to provide schema
+
+Punt
+----
+
+* custom factories instead of GeneratedObject.
+
+* What to do with XML namespaces?

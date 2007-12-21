@@ -1,0 +1,16 @@
+======================
+z3c.schema2xml credits
+======================
+
+Developers
+----------
+
+* Jan-Wijbrand Kolman
+
+* Martijn Faassen 
+
+Thank you
+---------
+
+* This software was developed for the Institute of Netherlands
+  History. Thanks for their support.

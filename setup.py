@@ -14,6 +14,7 @@ setup(name='z3c.schema2xml',
       license="ZPL",
       package_dir={'': 'src'},
       packages=find_packages('src'),
+      namespace_packages=['z3c'],
       include_package_data=True,
       zip_safe=False,
       install_requires=[

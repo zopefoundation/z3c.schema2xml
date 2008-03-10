@@ -1,6 +1,9 @@
 Todo
 ====
 
+* Whenenever the XML element is empty, the value of the object should
+  not be None but the default object that the schema indicates.
+
 * test adapter lookup failure
 
 * test whether GeneratedObject implements right schema interface.

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='z3c.schema2xml',
-      version='0.10',
+      version='0.11dev',
       description="Convert schema-described Zope 3 objects to XML and back",
       long_description="""\
 """,

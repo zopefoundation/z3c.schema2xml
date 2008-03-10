@@ -4,6 +4,12 @@ Todo
 * Whenenever the XML element is empty, the value of the object should
   not be None but the default object that the schema indicates.
 
+* What to do when importing something that has no XML but is required
+  according to the schema. Error?
+
+* Add an option to serialization that does not generate XML element if the
+  content of the object is equal to the schema default.
+
 * test adapter lookup failure
 
 * test whether GeneratedObject implements right schema interface.

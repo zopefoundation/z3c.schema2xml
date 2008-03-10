@@ -2,7 +2,7 @@
 z3c.schema2xml changes
 ======================
 
-0.10 (unreleased)
+0.10 (2008-03-10)
 =================
 
 * First checkin in svn.zope.org.

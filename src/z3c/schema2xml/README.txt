@@ -447,7 +447,7 @@ Let's try it with the field not filled in::
 Choice
 ------
 
-Choice fields. For now, we only work with Choice fields that have 
+Choice fields. For now, we only work with Choice fields that have
 text values::
 
 
@@ -481,6 +481,19 @@ text values::
     >>> deserialize(xml, IWithChoice, new_choice)
     >>> new_choice.choice is None
     True
+
+Only values that are actually available in the Choice's source are allowed. Other
+values will result in an error::
+
+    >>> xml = '''
+    ... <container>
+    ...   <choice>gamma</choice>
+    ... </container>
+    ... '''
+    >>> deserialize(xml, IWithChoice, new_choice)
+    Traceback (most recent call last):
+    ...
+    ConstraintNotSatisfied: gamma
 
 Set
 ---
@@ -516,3 +529,20 @@ Set fields are very similar to List fields::
     >>> deserialize(xml, IWithSet, new_set)
     >>> new_set.set
     set(['alpha', 'beta'])
+
+Only values that are actually available in the value_type's source are allowed.
+Other values will result in an error::
+
+    >>> xml = '''
+    ... <container>
+    ...   <set>
+    ...     <choice>alpha</choice>
+    ...     <choice>beta</choice>
+    ...     <choice>gamma</choice>
+    ...   </set>
+    ... </container>
+    ... '''
+    >>> deserialize(xml, IWithSet, new_set)
+    Traceback (most recent call last):
+    ...
+    ConstraintNotSatisfied: gamma

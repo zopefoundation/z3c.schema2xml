@@ -125,14 +125,16 @@ class Datetime(grok.Adapter):
 class Choice(grok.Adapter):
     grok.context(IChoice)
     grok.implements(IXMLGenerator)
-    
+
     def output(self, container, value):
         element = etree.SubElement(container, self.context.__name__)
         element.text = value
 
     def input(self, element):
-        if element.text is not None:
-            return element.text
+        value = element.text
+        if value is not None:
+            self.context.validate(value) # raises an error if not valid.
+            return value
         return None
 
 class Set(grok.Adapter):

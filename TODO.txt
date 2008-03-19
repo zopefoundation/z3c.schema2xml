@@ -1,6 +1,12 @@
 Todo
 ====
 
+* Deserialized values for Choice fields that have associated sources
+  (vocabularies) should be checked against their respective source.
+
+* Values for Choice fields should be taken from the associated source, where
+  the text of the XML element for this choice represents the value's token.
+
 * Whenenever the XML element is empty, the value of the object should
   not be None but the default object that the schema indicates.
 

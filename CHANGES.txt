@@ -5,7 +5,10 @@ z3c.schema2xml changes
 0.11 (unreleased)
 =================
 
-* ...
+* IXMLGenerators are now multi adapters on field and request. This
+  makes IXMLGenerators essentially views, or something like widgets. This is
+  needed to have proper validation of input and in preparation of improved
+  sources/vocabularies support.
 
 0.10 (2008-03-10)
 =================

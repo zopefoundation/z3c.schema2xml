@@ -43,8 +43,9 @@ Let's make an instance of the class::
 
 Now let's serialize it to XML:
 
+    >>> from zope.publisher.browser import TestRequest
     >>> from z3c.schema2xml import serialize
-    >>> print serialize('container', IName, name)
+    >>> print serialize('container', IName, name, TestRequest())
     <container>
       <first_name>Karel</first_name>
       <last_name>Titulaer</last_name>
@@ -62,7 +63,7 @@ This also works for other kinds of fields::
     ...         self.street_name = street_name
     ...         self.number = number
     >>> address = Address('Hofplein', 42)
-    >>> print serialize('container', IAddress, address)
+    >>> print serialize('container', IAddress, address, TestRequest())
     <container>
       <street_name>Hofplein</street_name>
       <number>42</number>
@@ -72,7 +73,7 @@ If a field is not filled in, the serialization will result in an empty
 element::
 
     >>> address2 = Address(None, None)
-    >>> print serialize('container', IAddress, address2)
+    >>> print serialize('container', IAddress, address2, TestRequest())
     <container>
       <street_name/>
       <number/>
@@ -92,7 +93,7 @@ can also handle this::
     ...         self.address = address
 
     >>> person = Person(name, address)
-    >>> print serialize('person', IPerson, person)
+    >>> print serialize('person', IPerson, person, TestRequest())
     <person>
       <name>
         <first_name>Karel</first_name>
@@ -124,7 +125,7 @@ XML with.
 
     >>> commission = Commission(
     ...     [person, Person(Name('Chriet', 'Titulaer'), Address('Ruimteweg', 3))])
-    >>> print serialize('commission', ICommission, commission)
+    >>> print serialize('commission', ICommission, commission, TestRequest())
     <commission>
       <members>
         <person>
@@ -160,10 +161,11 @@ which there's no an serializer::
     ...     def __init__(self, value):
     ...         self.field = value
     >>> not_serializable = NotSerializable(None)
-    >>> serialize('noway', IWithNonSerializableField, not_serializable)
+    >>> serialize('noway', IWithNonSerializableField, not_serializable, TestRequest())
     Traceback (most recent call last):
      ...
-    TypeError: ('Could not adapt', <zope.schema._bootstrapfields.Field object at ...>, <InterfaceClass z3c.schema2xml._schema2xml.IXMLGenerator>)
+    ComponentLookupError: ((<zope.schema._bootstrapfields.Field object at ...>, <zope.publisher.browser.TestRequest instance URL=http://127.0.0.1>), <InterfaceClass z3c.schema2xml._schema2xml.IXMLGenerator>, u'')
+
 
 Deserialization
 ---------------
@@ -179,7 +181,7 @@ provides this schema.
     ...  </container>
     ...  '''
     >>> name = Name('', '')
-    >>> deserialize(xml, IName, name)
+    >>> deserialize(xml, IName, name, TestRequest())
     >>> name.first_name
     u'Karel'
     >>> name.last_name
@@ -194,7 +196,7 @@ The order of the fields in XML does not matter::
     ...  </container>
     ...  '''
     >>> name = Name('', '')
-    >>> deserialize(xml, IName, name)
+    >>> deserialize(xml, IName, name, TestRequest())
     >>> name.first_name
     u'Karel'
     >>> name.last_name
@@ -214,7 +216,7 @@ This also works for other kinds of fields::
     ...  </container>
     ...  '''
     >>> address = Address('', 0)
-    >>> deserialize(xml, IAddress, address)
+    >>> deserialize(xml, IAddress, address, TestRequest())
     >>> address.street_name
     u'Hofplein'
     >>> address.number
@@ -236,7 +238,7 @@ can also handle this::
     ...  </person>
     ...  '''
     >>> person = Person(Name('', ''), Address('', 0))
-    >>> deserialize(xml, IPerson, person)
+    >>> deserialize(xml, IPerson, person, TestRequest())
     >>> person.name.first_name
     u'Karel'
     >>> person.name.last_name
@@ -267,7 +269,7 @@ Again the order in which the fields come in XML shouldn't matter::
     ...  </person>
     ...  '''
     >>> person = Person(Name('', ''), Address('', 0))
-    >>> deserialize(xml, IPerson, person)
+    >>> deserialize(xml, IPerson, person, TestRequest())
     >>> person.name.first_name
     u'Karel'
     >>> person.name.last_name
@@ -311,7 +313,7 @@ Again the order in which the fields come in XML shouldn't matter::
     ... '''
 
     >>> commission = Commission([])
-    >>> deserialize(xml, ICommission, commission)
+    >>> deserialize(xml, ICommission, commission, TestRequest())
     >>> len(commission.members)
     2
     >>> member = commission.members[0]
@@ -335,7 +337,7 @@ Whenever the XML element is empty, the resulting value should be None:
     ...  </container>
     ...  '''
     >>> name = Name('', '')
-    >>> deserialize(xml, IName, name)
+    >>> deserialize(xml, IName, name, TestRequest())
     >>> name.first_name is None
     True
     >>> name.last_name is None
@@ -350,7 +352,7 @@ For all kinds of fields, like strings and ints...::
     ...  </container>
     ...  '''
     >>> address = Address('', 0)
-    >>> deserialize(xml, IAddress, address)
+    >>> deserialize(xml, IAddress, address, TestRequest())
     >>> address.street_name is None
     True
     >>> address.number is None
@@ -371,7 +373,7 @@ For all kinds of fields, like strings and ints...::
     ...  </person>
     ...  '''
     >>> person = Person(Name('', ''), Address('', 0))
-    >>> deserialize(xml, IPerson, person)
+    >>> deserialize(xml, IPerson, person, TestRequest())
     >>> person.name.first_name is None
     True
     >>> person.name.last_name is None
@@ -397,7 +399,7 @@ Similarly, where a sequence is expected the value should be an empty sequence:
     ... </commission>
     ... '''
     >>> commission = Commission([])
-    >>> deserialize(xml, ICommission, commission)
+    >>> deserialize(xml, ICommission, commission, TestRequest())
     >>> len(commission.members)
     0
 
@@ -417,13 +419,13 @@ Datetime objects::
     ...     def __init__(self, datetime):
     ...         self.datetime = datetime
     >>> with_datetime = WithDatetime(datetime(2006, 12, 31))
-    >>> xml = serialize('container', IWithDatetime, with_datetime)
+    >>> xml = serialize('container', IWithDatetime, with_datetime, TestRequest())
     >>> print xml
     <container>
       <datetime>2006-12-31T00:00:00</datetime>
     </container>
     >>> new_datetime = WithDatetime(None)
-    >>> deserialize(xml, IWithDatetime, new_datetime)
+    >>> deserialize(xml, IWithDatetime, new_datetime, TestRequest())
     >>> new_datetime.datetime.year
     2006
     >>> new_datetime.datetime.month
@@ -434,13 +436,13 @@ Datetime objects::
 Let's try it with the field not filled in::
 
     >>> with_datetime = WithDatetime(None)
-    >>> xml = serialize('container', IWithDatetime, with_datetime)
+    >>> xml = serialize('container', IWithDatetime, with_datetime, TestRequest())
     >>> print xml
     <container>
       <datetime/>
     </container>
     >>> new_datetime= WithDatetime(None)
-    >>> deserialize(xml, IWithDatetime, new_datetime)
+    >>> deserialize(xml, IWithDatetime, new_datetime, TestRequest())
     >>> new_datetime.datetime is None
     True
 
@@ -463,22 +465,22 @@ text values::
     ...     def __init__(self, choice):
     ...         self.choice = choice
     >>> with_choice = WithChoice('alpha')
-    >>> xml = serialize('container', IWithChoice, with_choice)
+    >>> xml = serialize('container', IWithChoice, with_choice, TestRequest())
     >>> print xml
     <container>
       <choice>alpha</choice>
     </container>
     >>> new_choice = WithChoice(None)
-    >>> deserialize(xml, IWithChoice, new_choice)
+    >>> deserialize(xml, IWithChoice, new_choice, TestRequest())
     >>> new_choice.choice
     'alpha'
     >>> with_choice = WithChoice(None)
-    >>> xml = serialize('container', IWithChoice, with_choice)
+    >>> xml = serialize('container', IWithChoice, with_choice, TestRequest())
     >>> print xml
     <container>
       <choice/>
     </container>
-    >>> deserialize(xml, IWithChoice, new_choice)
+    >>> deserialize(xml, IWithChoice, new_choice, TestRequest())
     >>> new_choice.choice is None
     True
 
@@ -490,7 +492,7 @@ values will result in an error::
     ...   <choice>gamma</choice>
     ... </container>
     ... '''
-    >>> deserialize(xml, IWithChoice, new_choice)
+    >>> deserialize(xml, IWithChoice, new_choice, TestRequest())
     Traceback (most recent call last):
     ...
     ConstraintNotSatisfied: gamma
@@ -509,7 +511,7 @@ Set fields are very similar to List fields::
     ...     def __init__(self, set):
     ...         self.set = set
     >>> with_set = WithSet(set(['alpha']))
-    >>> xml = serialize('container', IWithSet, with_set)
+    >>> xml = serialize('container', IWithSet, with_set, TestRequest())
     >>> print xml
     <container>
       <set>
@@ -517,7 +519,7 @@ Set fields are very similar to List fields::
       </set>
     </container>
     >>> with_set = WithSet(set(['alpha', 'beta']))
-    >>> xml = serialize('container', IWithSet, with_set)
+    >>> xml = serialize('container', IWithSet, with_set, TestRequest())
     >>> print xml
     <container>
       <set>
@@ -526,7 +528,7 @@ Set fields are very similar to List fields::
       </set>
     </container>
     >>> new_set = WithSet(None)
-    >>> deserialize(xml, IWithSet, new_set)
+    >>> deserialize(xml, IWithSet, new_set, TestRequest())
     >>> new_set.set
     set(['alpha', 'beta'])
 
@@ -542,7 +544,7 @@ Other values will result in an error::
     ...   </set>
     ... </container>
     ... '''
-    >>> deserialize(xml, IWithSet, new_set)
+    >>> deserialize(xml, IWithSet, new_set, TestRequest())
     Traceback (most recent call last):
     ...
     ConstraintNotSatisfied: gamma

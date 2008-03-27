@@ -7,34 +7,42 @@ from persistent import Persistent
 from zope.interface import Interface, alsoProvides
 import zope.datetime
 from zope.location import Location
+
+from zope.component import getMultiAdapter
+
 from zope.schema import getFieldsInOrder
 from zope.schema.interfaces import IText, IInt, IObject, IList, IChoice, ISet
 from zope.schema.interfaces import IDatetime
 
-def serialize_to_tree(container, schema, instance):
+from zope.publisher.interfaces.browser import IBrowserRequest
+
+def serialize_to_tree(container, schema, instance, request):
     for name, field in getFieldsInOrder(schema):
         value = field.get(instance)
-        IXMLGenerator(field).output(container, value)
+        getMultiAdapter(
+            (field, request), IXMLGenerator).output(container, value)
     return container
 
 def serialize(
-        container_name, schema, instance, encoding='UTF-8', pretty_print=True):
+        container_name, schema, instance, request,
+        encoding='UTF-8', pretty_print=True):
     container = etree.Element(container_name)
-    container = serialize_to_tree(container, schema, instance)
+    container = serialize_to_tree(container, schema, instance, request)
     return etree.tostring(
         container, encoding=encoding, pretty_print=pretty_print)
 
-def deserialize_from_tree(container, schema, instance):
+def deserialize_from_tree(container, schema, instance, request):
     for element in container:
         field = schema[element.tag]
-        value = IXMLGenerator(field).input(element)
+        value = getMultiAdapter(
+            (field, request), IXMLGenerator).input(element)
         field.set(instance, value)
 
     alsoProvides(instance, schema)
 
-def deserialize(xml, schema, instance):
+def deserialize(xml, schema, instance, request):
     container = etree.XML(xml)
-    deserialize_from_tree(container, schema, instance)
+    deserialize_from_tree(container, schema, instance, request)
 
 class GeneratedObject(Location, Persistent):
     def __init__(self):
@@ -50,12 +58,19 @@ class IXMLGenerator(Interface):
         """Input XML element according to field and return value.
         """
 
-class Text(grok.Adapter):
-    grok.context(IText)
+class XMLGeneratorBase(grok.MultiAdapter):
+    grok.baseclass()
     grok.implements(IXMLGenerator)
 
+    def __init__(self, field, request):
+        self.field = field
+        self.request = request
+
+class Text(XMLGeneratorBase):
+    grok.adapts(IText, IBrowserRequest)
+
     def output(self, container, value):
-        element = etree.SubElement(container, self.context.__name__)
+        element = etree.SubElement(container, self.field.__name__)
         element.text = value
 
     def input(self, element):
@@ -63,12 +78,11 @@ class Text(grok.Adapter):
             return unicode(element.text)
         return None
 
-class Int(grok.Adapter):
-    grok.context(IInt)
-    grok.implements(IXMLGenerator)
+class Int(XMLGeneratorBase):
+    grok.adapts(IInt, IBrowserRequest)
 
     def output(self, container, value):
-        element = etree.SubElement(container, self.context.__name__)
+        element = etree.SubElement(container, self.field.__name__)
         if value is not None:
             element.text = str(value)
 
@@ -77,43 +91,44 @@ class Int(grok.Adapter):
             return int(element.text)
         return None
 
-class Object(grok.Adapter):
-    grok.context(IObject)
-    grok.implements(IXMLGenerator)
+class Object(XMLGeneratorBase):
+    grok.adapts(IObject, IBrowserRequest)
 
     def output(self, container, value):
-        container = etree.SubElement(container, self.context.__name__)
+        container = etree.SubElement(container, self.field.__name__)
 
-        for name, field in getFieldsInOrder(self.context.schema):
-            IXMLGenerator(field).output(container, field.get(value))
+        for name, field in getFieldsInOrder(self.field.schema):
+            adapter = getMultiAdapter((field, self.request), IXMLGenerator)
+            adapter.output(container, field.get(value))
 
     def input(self, element):
         instance = GeneratedObject()
-        deserialize_from_tree(element, self.context.schema, instance)
+        deserialize_from_tree(
+            element, self.field.schema, instance, self.request)
         return instance
 
-class List(grok.Adapter):
-    grok.context(IList)
-    grok.implements(IXMLGenerator)
+class List(XMLGeneratorBase):
+    grok.adapts(IList, IBrowserRequest)
 
     def output(self, container, value):
-        container = etree.SubElement(container, self.context.__name__)
-        field = self.context.value_type
+        container = etree.SubElement(container, self.field.__name__)
+        field = self.field.value_type
         for v in value:
-            IXMLGenerator(field).output(container, v)
+            adapter = getMultiAdapter((field, self.request), IXMLGenerator)
+            adapter.output(container, v)
 
     def input(self, element):
-        field = self.context.value_type
+        field = self.field.value_type
         return [
-            IXMLGenerator(field).input(sub_element)
+            getMultiAdapter(
+                (field, self.request), IXMLGenerator).input(sub_element)
             for sub_element in element]
 
-class Datetime(grok.Adapter):
-    grok.context(IDatetime)
-    grok.implements(IXMLGenerator)
+class Datetime(XMLGeneratorBase):
+    grok.adapts(IDatetime, IBrowserRequest)
 
     def output(self, container, value):
-        element = etree.SubElement(container, self.context.__name__)
+        element = etree.SubElement(container, self.field.__name__)
         if value is not None:
             element.text = value.isoformat()
 
@@ -122,33 +137,33 @@ class Datetime(grok.Adapter):
             return zope.datetime.parseDatetimetz(element.text)
         return None
 
-class Choice(grok.Adapter):
-    grok.context(IChoice)
-    grok.implements(IXMLGenerator)
+class Choice(XMLGeneratorBase):
+    grok.adapts(IChoice, IBrowserRequest)
 
     def output(self, container, value):
-        element = etree.SubElement(container, self.context.__name__)
+        element = etree.SubElement(container, self.field.__name__)
         element.text = value
 
     def input(self, element):
         value = element.text
         if value is not None:
-            self.context.validate(value) # raises an error if not valid.
+            self.field.validate(value) # raises an error if not valid.
             return value
         return None
 
-class Set(grok.Adapter):
-    grok.context(ISet)
-    grok.implements(IXMLGenerator)
+class Set(XMLGeneratorBase):
+    grok.adapts(ISet, IBrowserRequest)
 
     def output(self, container, value):
-        container = etree.SubElement(container, self.context.__name__)
-        field = self.context.value_type
+        container = etree.SubElement(container, self.field.__name__)
+        field = self.field.value_type
         for v in value:
-            IXMLGenerator(field).output(container, v)
+            adapter = getMultiAdapter((field, self.request), IXMLGenerator)
+            adapter.output(container, v)
 
     def input(self, element):
-        field = self.context.value_type
+        field = self.field.value_type
         return set([
-            IXMLGenerator(field).input(sub_element)
+            getMultiAdapter(
+                (field, self.request), IXMLGenerator).input(sub_element)
             for sub_element in element])

@@ -1,6 +1,10 @@
 Todo
 ====
 
+* Add factory argument to deserialize function.
+
+* Remove GeneratedObject from codebase - responsibility of client code.
+
 * Deserialized values for Choice fields that have associated sources
   (vocabularies) should be checked against their respective source.
 
@@ -31,7 +35,5 @@ Todo
 
 Punt
 ----
-
-* custom factories instead of GeneratedObject.
 
 * What to do with XML namespaces?

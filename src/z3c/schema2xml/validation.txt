@@ -1,0 +1,108 @@
+Validation of input
+====================
+
+Like with browser widgets, input from the deserialized XML files needs to be
+validated against given constraints and "requiredness".
+
+Let's first define a simple Zope 3 schema where non of the fields is required
+or have constraints::
+
+  >>> from zope import interface, schema
+  >>> from zope.interface import implements
+  >>> class IName(interface.Interface):
+  ...     first_name = schema.TextLine(title=u'First name', required=False)
+  ...     last_name = schema.TextLine(title=u'Last name', required=False)
+  >>> class Name(object):
+  ...     implements(IName)
+  ...     def __init__(self, first_name, last_name):
+  ...         self.first_name = first_name
+  ...         self.last_name = last_name
+
+  >>> from z3c.schema2xml import deserialize
+  >>> xml = '''
+  ...  <container>
+  ...    <first_name>Karel</first_name>
+  ...    <last_name>Titulaer</last_name>
+  ...  </container>
+  ...  '''
+  >>> name = Name('', '')
+  >>> from zope.publisher.browser import TestRequest
+  >>> deserialize(xml, IName, name, TestRequest())
+  >>> name.first_name
+  u'Karel'
+  >>> name.last_name
+  u'Titulaer'
+
+Whenever content for a serialized field is missing, the corresponding field
+will have the "missing value" as defined for the corresponding field (which by
+default is None, but we'll test different cases too):
+
+  >>> # test with an element with and empty text node:
+  >>> xml = '''
+  ...  <container>
+  ...    <first_name></first_name>
+  ...    <last_name>Titulaer</last_name>
+  ...  </container>
+  ...  '''
+  >>> name = Name('', '')
+  >>> deserialize(xml, IName, name, TestRequest())
+  >>> name.first_name is None
+  True
+  >>> name.last_name
+  u'Titulaer'
+
+  >>> # test with an empty element:
+  >>> xml = '''
+  ...  <container>
+  ...    <first_name></first_name>
+  ...    <last_name/>
+  ...  </container>
+  ...  '''
+  >>> name = Name('', '')
+  >>> deserialize(xml, IName, name, TestRequest())
+  >>> name.first_name is None
+  True
+  >>> name.last_name is None
+  True
+
+When defining a schema, one can define missing values for fields::
+
+  >>> class ICustomMissing(interface.Interface):
+  ...     somefield = schema.TextLine(
+  ...         title=u'First name', required=False, missing_value=u'Foo')
+  >>> class CustomMissing(object):
+  ...     implements(ICustomMissing)
+  ...     def __init__(self, somefield):
+  ...         self.somefield = somefield
+  >>> xml = '''
+  ...  <container>
+  ...    <somefield></somefield>
+  ...  </container>
+  ...  '''
+  >>> cm = CustomMissing('')
+  >>> deserialize(xml, ICustomMissing, cm, TestRequest())
+  >>> cm.somefield is None
+  False
+  >>> cm.somefield
+  u'Foo'
+
+Deserializing XML where required fields have no value will result in an
+validation error::
+
+  >>> class IHasRequired(interface.Interface):
+  ...     somefield = schema.TextLine(
+  ...         title=u'First name', required=True)
+  >>> class HasRequired(object):
+  ...     implements(IHasRequired)
+  ...     def __init__(self, somefield):
+  ...         self.somefield = somefield
+  >>> xml = '''
+  ...  <container>
+  ...    <somefield></somefield>
+  ...  </container>
+  ...  '''
+  >>> hr = HasRequired('')
+  >>> deserialize(xml, IHasRequired, hr, TestRequest())
+  Traceback (most recent call last):
+  ...
+  RequiredMissing

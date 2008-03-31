@@ -15,7 +15,9 @@ def test_suite():
 
     return unittest.TestSuite([
         doctest.DocFileSuite(
-            'README.txt', setUp=grok_setup, optionflags=optionflags)
+            'README.txt',
+            'validation.txt',
+            setUp=grok_setup, optionflags=optionflags)
         ])
 
 if __name__ == '__main__':

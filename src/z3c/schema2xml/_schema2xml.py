@@ -77,7 +77,7 @@ class Text(XMLGeneratorBase):
         if element.text is not None:
             value = unicode(element.text)
         else:
-            value = None
+            value = self.field.missing_value
         self.field.validate(value) # raises an error if not valid.
         return value
 
@@ -93,7 +93,7 @@ class Int(XMLGeneratorBase):
         if element.text is not None and element.text != '':
             value = int(element.text)
         else:
-            value = None
+            value = self.field.missing_value
         self.field.validate(value) # raises an error if not valid.
         return value
 
@@ -144,7 +144,7 @@ class Datetime(XMLGeneratorBase):
         if element.text is not None:
             value = zope.datetime.parseDatetimetz(element.text)
         else:
-            value = None
+            value = self.field.missing_value
         self.field.validate(value) # raises an error if not valid.
         return value
 

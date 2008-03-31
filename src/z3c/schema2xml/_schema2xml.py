@@ -75,8 +75,11 @@ class Text(XMLGeneratorBase):
 
     def input(self, element):
         if element.text is not None:
-            return unicode(element.text)
-        return None
+            value = unicode(element.text)
+        else:
+            value = None
+        self.field.validate(value) # raises an error if not valid.
+        return value
 
 class Int(XMLGeneratorBase):
     grok.adapts(IInt, IBrowserRequest)
@@ -88,8 +91,11 @@ class Int(XMLGeneratorBase):
 
     def input(self, element):
         if element.text is not None and element.text != '':
-            return int(element.text)
-        return None
+            value = int(element.text)
+        else:
+            value = None
+        self.field.validate(value) # raises an error if not valid.
+        return value
 
 class Object(XMLGeneratorBase):
     grok.adapts(IObject, IBrowserRequest)
@@ -119,10 +125,12 @@ class List(XMLGeneratorBase):
 
     def input(self, element):
         field = self.field.value_type
-        return [
+        value = [
             getMultiAdapter(
                 (field, self.request), IXMLGenerator).input(sub_element)
             for sub_element in element]
+        self.field.validate(value) # raises an error if not valid.
+        return value
 
 class Datetime(XMLGeneratorBase):
     grok.adapts(IDatetime, IBrowserRequest)
@@ -134,8 +142,11 @@ class Datetime(XMLGeneratorBase):
 
     def input(self, element):
         if element.text is not None:
-            return zope.datetime.parseDatetimetz(element.text)
-        return None
+            value = zope.datetime.parseDatetimetz(element.text)
+        else:
+            value = None
+        self.field.validate(value) # raises an error if not valid.
+        return value
 
 class Choice(XMLGeneratorBase):
     grok.adapts(IChoice, IBrowserRequest)
@@ -146,10 +157,8 @@ class Choice(XMLGeneratorBase):
 
     def input(self, element):
         value = element.text
-        if value is not None:
-            self.field.validate(value) # raises an error if not valid.
-            return value
-        return None
+        self.field.validate(value) # raises an error if not valid.
+        return value
 
 class Set(XMLGeneratorBase):
     grok.adapts(ISet, IBrowserRequest)
@@ -163,7 +172,9 @@ class Set(XMLGeneratorBase):
 
     def input(self, element):
         field = self.field.value_type
-        return set([
+        value = set([
             getMultiAdapter(
                 (field, self.request), IXMLGenerator).input(sub_element)
             for sub_element in element])
+        self.field.validate(value) # raises an error if not valid.
+        return value

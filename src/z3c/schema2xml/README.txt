@@ -25,8 +25,8 @@ Let's first define a simple Zope 3 schema::
 
     >>> from zope import interface, schema
     >>> class IName(interface.Interface):
-    ...     first_name = schema.TextLine(title=u'First name')
-    ...     last_name = schema.TextLine(title=u'Last name')
+    ...     first_name = schema.TextLine(title=u'First name', required=False)
+    ...     last_name = schema.TextLine(title=u'Last name', required=False)
 
 Let's now make a class that implements this schema::
 
@@ -55,8 +55,8 @@ This also works for other kinds of fields::
 
     >>> from zope import interface, schema
     >>> class IAddress(interface.Interface):
-    ...     street_name = schema.TextLine(title=u'Street name')
-    ...     number = schema.Int(title=u'House number')
+    ...     street_name = schema.TextLine(title=u'Street name', required=False)
+    ...     number = schema.Int(title=u'House number', required=False)
     >>> class Address(object):
     ...     implements(IAddress)
     ...     def __init__(self, street_name, number):
@@ -83,8 +83,8 @@ If a schema defines an Object field with its own schema, the serialization
 can also handle this::
 
     >>> class IPerson(interface.Interface):
-    ...     name = schema.Object(title=u"Name", schema=IName)
-    ...     address = schema.Object(title=u"Address", schema=IAddress)
+    ...     name = schema.Object(title=u"Name", schema=IName, required=False)
+    ...     address = schema.Object(title=u"Address", schema=IAddress, required=False)
 
     >>> class Person(object):
     ...     implements(IPerson)
@@ -112,7 +112,7 @@ schema. Let's make an object and serialize it::
     ...     members = schema.List(
     ...         title=u"Commission",
     ...         value_type=schema.Object(__name__='person',
-    ...         schema=IPerson))
+    ...         schema=IPerson), required=False)
 
 Note that we have to explicitly specify __name__ for the field that's
 used for value_type here, otherwise we have no name to serialize to
@@ -155,7 +155,7 @@ We get an adapter lookop failure whenever we try to serialize a field type for
 which there's no an serializer::
 
     >>> class IWithNonSerializableField(interface.Interface):
-    ...     field = schema.Field(title=u"Commission")
+    ...     field = schema.Field(title=u"Commission", required=False)
     >>> class NotSerializable(object):
     ...     implements(IWithNonSerializableField)
     ...     def __init__(self, value):
@@ -413,7 +413,7 @@ Datetime objects::
 
     >>> from datetime import datetime
     >>> class IWithDatetime(interface.Interface):
-    ...     datetime = schema.Datetime(title=u'Date and time')
+    ...     datetime = schema.Datetime(title=u'Date and time', required=False)
     >>> class WithDatetime(object):
     ...     implements(IWithDatetime)
     ...     def __init__(self, datetime):

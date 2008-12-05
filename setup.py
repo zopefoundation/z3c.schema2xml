@@ -1,11 +1,22 @@
 from setuptools import setup, find_packages
 import sys, os
 
+def read(*rnames):
+    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+
+long_description = (
+    read('src', 'z3c', 'schema2xml', 'README.txt')
+    + '\n' +
+    read('CHANGES.txt')
+    + '\n' +
+    'Download\n'
+    '********\n'
+    )
+
 setup(name='z3c.schema2xml',
-      version='0.11dev',
+      version='1.0dev',
       description="Convert schema-described Zope 3 objects to XML and back",
-      long_description="""\
-""",
+      long_description=long_description,
       classifiers=[],
       keywords="",
       author="Martijn Faassen, Jan-Wijbrand Kolman",

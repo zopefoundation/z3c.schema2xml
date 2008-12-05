@@ -1,5 +1,8 @@
 Schema To XML
-=============
+*************
+
+Introduction
+============
 
 This package can convert objects described by Zope 3 schema to simple
 XML structures. It's also able to convert this XML back into objects.
@@ -12,14 +15,10 @@ applications. It could also be used to provide XML representations of
 objects for other purposes, such as XSLT transformations, or even just
 to get a full-text representation for index purposes.
 
-The package lies on ``lxml``. It also relies on ``grok``, which will
-make it somewhat harder to integrate with a normal Zope 3 application
-at present. It is expected this will change as the core grokking
-procedure used by this package (to Grok adapters) makes it into a more
-limited package that does not rely on other aspects of Grok.
+The package lies on ``lxml`` for the serialization to XML. 
 
 Serialization
--------------
+=============
 
 Let's first define a simple Zope 3 schema::
 
@@ -166,7 +165,7 @@ which there's no an serializer::
     TypeError: ('Could not adapt', <zope.schema._bootstrapfields.Field object at ...>, <InterfaceClass z3c.schema2xml._schema2xml.IXMLGenerator>)
 
 Deserialization
----------------
+===============
 
 Now we want to deserialize XML according to a schema to an object that
 provides this schema.
@@ -405,7 +404,7 @@ TextLine, Int, Object and List have just been tested. Now follow tests
 for the other field types that have a serializer.
 
 Datetime
---------
+========
 
 Datetime objects::
 
@@ -445,7 +444,7 @@ Let's try it with the field not filled in::
     True
 
 Choice
-------
+======
 
 Choice fields. For now, we only work with Choice fields that have 
 text values::
@@ -483,7 +482,7 @@ text values::
     True
 
 Set
----
+===
 
 Set fields are very similar to List fields::
 

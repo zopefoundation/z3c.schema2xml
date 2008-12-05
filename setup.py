@@ -14,7 +14,7 @@ long_description = (
     )
 
 setup(name='z3c.schema2xml',
-      version='1.0dev',
+      version='1.0',
       description="Convert schema-described Zope 3 objects to XML and back",
       long_description=long_description,
       classifiers=[],

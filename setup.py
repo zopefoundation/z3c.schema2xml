@@ -20,7 +20,7 @@ setup(name='z3c.schema2xml',
       install_requires=[
         'setuptools',
         'lxml',
-        'grok',
+        'grokcore.component',
         'zc.sourcefactory',
       ],
       entry_points="""

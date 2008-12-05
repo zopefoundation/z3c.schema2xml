@@ -1,6 +1,6 @@
 from lxml import etree
 
-import grok
+import grokcore.component as grok
 
 from persistent import Persistent
 

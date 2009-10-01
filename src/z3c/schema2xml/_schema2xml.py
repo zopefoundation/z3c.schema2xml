@@ -24,11 +24,32 @@ def serialize(
     return etree.tostring(
         container, encoding=encoding, pretty_print=pretty_print)
 
+
+class DeserializationError(TypeError):
+    """Deserialization did not succeed.
+
+    The attribute `field_errors` contains a dictionary mapping field names to
+    an exception that occured.
+
+    """
+
+    def __init__(self, field_errors):
+        self.field_errors = field_errors
+
+
 def deserialize_from_tree(container, schema, instance):
+    errors = {}
+
     for element in container:
         field = schema[element.tag]
-        value = IXMLGenerator(field).input(element)
-        field.set(instance, value)
+        try:
+            value = IXMLGenerator(field).input(element)
+            field.set(instance, value)
+        except Exception, e:
+            errors[field.__name__] = e
+
+    if errors:
+        raise DeserializationError(errors)
 
     alsoProvides(instance, schema)
 

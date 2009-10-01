@@ -15,7 +15,7 @@ applications. It could also be used to provide XML representations of
 objects for other purposes, such as XSLT transformations, or even just
 to get a full-text representation for index purposes.
 
-The package lies on ``lxml`` for the serialization to XML. 
+The package relies on ``lxml`` for the serialization to XML. 
 
 Serialization
 =============

@@ -28,8 +28,8 @@ def serialize(
 class DeserializationError(TypeError):
     """Deserialization did not succeed.
 
-    The attribute `field_errors` contains a dictionary mapping field names to
-    an exception that occured.
+    The attribute `field_errors` contains a dictionary mapping each field for
+    which an exception occured to the corresponding exception.
 
     """
 
@@ -46,7 +46,7 @@ def deserialize_from_tree(container, schema, instance):
             value = IXMLGenerator(field).input(element)
             field.set(instance, value)
         except Exception, e:
-            errors[field.__name__] = e
+            errors[field] = e
 
     if errors:
         raise DeserializationError(errors)

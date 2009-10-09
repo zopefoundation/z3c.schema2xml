@@ -515,3 +515,60 @@ Set fields are very similar to List fields::
     >>> deserialize(xml, IWithSet, new_set)
     >>> new_set.set
     set(['alpha', 'beta'])
+   
+
+Deserialization with errors
+===========================
+
+We define the IName interface again but with constraints:
+
+    >>> from zope.schema.fieldproperty import FieldProperty
+    >>> from z3c.schema2xml import DeserializationError
+
+    >>> class INameConstraint(interface.Interface):
+    ...     first_name = schema.TextLine(title=u'First name', max_length=3)
+    ...     last_name = schema.TextLine(title=u'Last name')
+
+Our change the implementation of our content class. We use now
+Field properties to reflect the changes form our interface.
+
+    >>> class NameConstraint(object):
+    ...     implements(IName)
+    ...     first_name = FieldProperty(INameConstraint['first_name'])
+    ...     last_name = FieldProperty(INameConstraint['last_name'])
+    ...     def __init__(self, first_name, last_name):
+    ...         self.first_name = first_name
+    ...         self.last_name = last_name
+
+
+    >>> xml = '''
+    ...  <container>
+    ...    <first_name>Karel</first_name>
+    ...    <last_name>Titulaer</last_name>
+    ...  </container>
+    ...  '''
+    >>> name = NameConstraint(u'', u'')
+
+We try to deserialize against the constraint and
+we get an DeserializationError:
+
+    >>> deserialize(xml, INameConstraint, name)
+    Traceback (most recent call last):
+    ...
+    DeserializationError
+
+Let's catch the error.
+
+    >>> try:
+    ...     deserialize(xml, INameConstraint, name)
+    ... except DeserializationError, e:
+    ...     pass
+
+We get detailed information which value has an error.
+
+    >>> key, value = e.field_errors.values()[0]
+    >>> key
+    Karel 3
+
+    >>> value
+    <Element first_name at ...>

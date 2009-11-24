@@ -1,6 +1,10 @@
 Todo
 ====
 
+* Merge z3c.schema2json and z3c.schema2xml into one. Maybe by using
+  named adapters for I[Something]Generator interfaces, where the name
+  could specify the input/output mode?
+
 * Whenenever the XML element is empty, the value of the object should
   not be None but the default object that the schema indicates.
 
@@ -10,22 +14,22 @@ Todo
 * Add an option to serialization that does not generate XML element if the
   content of the object is equal to the schema default.
 
-* test adapter lookup failure
+* Test adapter lookup failure.
 
-* test whether GeneratedObject implements right schema interface.
+* Test whether GeneratedObject implements right schema interface.
 
-* test without explicit __name__ for Lists. What should happen? Fallback
+* Test without explicit __name__ for Lists. What should happen? Fallback
   on interface name?
 
-* test deserialization on an empty object.
+* Test deserialization on an empty object.
 
-* what to do in case of a missing element in an XML document?
+* What to do in case of a missing element in an XML document?
 
-* form data file instances need to provide schema
+* Form data file instances need to provide schema.
+
+* Custom factories instead of GeneratedObject.
 
 Punt
 ----
-
-* custom factories instead of GeneratedObject.
 
 * What to do with XML namespaces?

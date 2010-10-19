@@ -34,6 +34,10 @@ setup(name='z3c.schema2xml',
         'grokcore.component',
         'zc.sourcefactory',
       ],
+      extras_require=dict(
+          test=[
+              'zope.app.testing',
+              ]),
       entry_points="""
       # -*- Entry points: -*-
       """,

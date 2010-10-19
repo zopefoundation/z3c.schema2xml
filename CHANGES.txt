@@ -4,7 +4,7 @@ CHANGES
 1.1 (unreleased)
 ================
 
-* Updated tests to newer Grok version.
+* Updated tests to newer Grok version (1.1).
 
 * Run tests against lxml 2.2.6.
 

@@ -568,7 +568,7 @@ We get detailed information which value has an error.
 
     >>> key, value = e.field_errors.values()[0]
     >>> key
-    Karel 3
+    TooLong(u'Karel', 3)
 
     >>> value
     <Element first_name at ...>
